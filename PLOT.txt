@@ -1,0 +1,45 @@
+
+Current Title - FILTER
+
+Context:
+    The story follows Gary 
+
+    SONG:
+    Gary is a 8 year old at the beginning of the story and the story ends when he turns 18, and he releases
+        his first song which is a reflection of his life up to that point, and it combines the most important experiences
+        of his life and the genre and parts of his life which he associates those events with to be able to
+        create a cohesive song
+
+    PHOTOGRAPHY:
+    Gary is a 8 year old at the beginning of the story and the story ends when he turns 18, and he releases
+        his first collection of photos that he has taken throughout his life. He has a nack for photography and
+        is good when it comes to the framing and ideas of his life. Any hardships or major events in his life 
+        cause a "filter" to be put on himself and his photos. These photos are reflections of the choices you made, and his personality.
+
+Branches -
+
+Choice 1 -  8 years old - What animal does Gary take on his vacation to the coast with his family? A seagull, or a shark?
+    Shark - Sharks become Gary's favorite animals (His last image will be of a shark).
+    Seagull - Birds become Gary's favorite types of animals (His last image will be of a seagull).
+
+
+    ------------
+    Choice 2 - 12 years olds - As Gary grows up he finds peace in photographing animals and nature, but decides he wants to take a picture that represents himself. Does he take a picture of his room, an average kids room with a game system in it, and some chip bags, and some soda cans OR him taking a photo of his house?
+        Room - The game room photo is moved to to the top of the album, and the previous image is filtered with the green filter
+        House - THe house filter is moved to the top of the album, and the previous image is filtered with the purple filter.
+
+        ----------------------
+        Choice 3 - 16 years old - As Gary is improving at photography, he is wondering whether he should focus on himself or his friendships.
+            Self - a blurred self portrait is added to the album, and all previous images are used with the sepia filter
+            Friends -  A group selfie is added to the album and all previous images are used with the blur filter.
+        
+        ---------------------
+
+        Conclusion - 18 years old - Gary publishes his album and reflects on each photo he took -
+            - if shark - "I always did love sharks, or maybe that day is why I loved them.
+            - if seagull - "I liked birds so much back then... haha...  I guess I just thought they were cool."
+
+            - if room - "I always spent time playing games, not really paying attention to my family as much as I should have..."
+            -
+            -
+            -
