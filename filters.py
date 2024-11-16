@@ -8,25 +8,11 @@ import random
 import argparse
 # END IMPORTS
 
-args = {
-    "input": "Beach.jpg",
-    "output": "FILTERED_Beach.jpg",
-    "reflect": None,
-    "bw": None,
-    "blur": None,
-    "dither": None,
-    "filter": None,
-    "invert": None,
-    }
-output = args["output"]
-
-image = Image.open(args["input"])
-
-size = image.size
-
 # ALL filters below translate to a specific color palette via focusing specific colors in ( additive color mixing ?)
 # ------ START BASE COLOR FILTERS ------ #
 def gray_filter(image):
+    size = image.size
+    new_image = image
     for x in range(size[0]):
         for y in range(size[1]):
             pixel = image.getpixel((x,y))
@@ -34,11 +20,13 @@ def gray_filter(image):
 
             new_pixel = (new_pixel_value, new_pixel_value, new_pixel_value) # add , pixel[3] if using PNGS
 
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {size[0]}/{size[0]} completed!")
+            new_image.putpixel((x,y),new_pixel)
+    return new_image
+        
 
-def sepia_filter(image):
+def sepia_filter(image):   
+    size = image.size
+    new_image = image
     for x in range(size[0]):
         for y in range(size[1]):
             pixel = image.getpixel((x,y))
@@ -47,36 +35,12 @@ def sepia_filter(image):
             new_blue = math.floor((pixel[0] * .272) + (pixel[1] * .534) + (pixel[2] * .131))
 
             new_pixel = (new_red, new_green, new_blue)
-            image.putpixel((x,y),new_pixel)
-    return image
+            new_image.putpixel((x,y),new_pixel)
+    return new_image
 
-def red_filter(image):
-    for x in range(size[0]):
-        for y in range(size[1]):
-            pixel = image.getpixel((x,y))
-        
-            new_green = 0
-            new_blue = 0
-
-            new_pixel = (pixel[0], new_green, new_blue)
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {size[0]}/{size[0]} completed!")
-
-def orange_filter(image):
-    for x in range(size[0]):
-        for y in range(size[1]):
-            pixel = image.getpixel((x,y))
-        
-            new_green = math.floor(pixel[1] / 2)
-            new_blue = 0
-
-            new_pixel = (pixel[0], new_green, new_blue)
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {size[0]}/{size[0]} completed!")
-
-def yellow_filter(image):
+def yellow_filter(image):  
+    size = image.size
+    new_image = image
     for x in range(size[0]):
         for y in range(size[1]):
             pixel = image.getpixel((x,y))
@@ -85,128 +49,49 @@ def yellow_filter(image):
             new_blue = 0
 
             new_pixel = (pixel[0], new_green, new_blue)
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {size[0]}/{size[0]} completed!")
+            new_image.putpixel((x,y),new_pixel)
+    return new_image
 
-def green_filter(image):
-    for x in range(size[0]):
-        for y in range(size[1]):
-            pixel = image.getpixel((x,y))
-
-            new_red = 0
-            new_blue = 0
-
-            new_pixel = (new_red, pixel[1], new_blue)
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {size[0]}/{size[0]} completed!")
-
-def cyan_filter(image):
-    for x in range(size[0]):
-        for y in range(size[1]):
-            pixel = image.getpixel((x,y))
-
-            new_red = 0
-            new_blue = pixel[2]
-
-            new_pixel = (new_red, pixel[1], new_blue)
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {size[0]}/{size[0]} completed!")
 
 def blue_filter(image):
-    for x in range(size[0]):
-        for y in range(size[1]):
-            pixel = image.getpixel((x,y))
-        
-            new_red = 0
-            new_green = 0
-
-            new_pixel = (new_red, new_green, pixel[2])
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {size[0]}/{size[0]} completed!")
-
-def purple_filter(image):
-
-    for x in range(size[0]):
-        for y in range(size[1]):
-            pixel = image.getpixel((x,y))
-        
-            new_red = pixel[0]
-            new_green = 0
-
-            new_pixel = (new_red, new_green, pixel[2])
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {size[0]}/{size[0]} completed!")
-
-def rainbow_filter(image):
-    # ALGO I made for fun. SLOW (probably)
-    counter = 0
-    for x in range(size[0]):
-        for y in range(size[1]):
-            pixel = image.getpixel((x,y))
-
-            if counter == 0:
-                new_pixel = (pixel[0],0,0)
-                counter += 1
-            elif counter == 1:
-                new_pixel = (pixel[0],math.floor(pixel[1]/2),0)
-                counter += 1
-            elif counter == 2:
-                new_pixel = (pixel[0],pixel[1],0)
-                counter += 1
-            elif counter == 3:
-                new_pixel = (0,pixel[1],0)
-                counter += 1
-            elif counter == 4:
-                new_pixel = (0,pixel[1],pixel[2])
-                counter += 1
-            elif counter == 5:
-                new_pixel = (0,0,pixel[2])
-                counter += 1
-            elif counter == 6:
-                new_pixel = (pixel[0],0,pixel[2])
-                counter = 0
-
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {size[0]}/{size[0]} completed!")
-
-# ------ END BASE COLOR FILTERS ----- #
-
-def black_white_filter(image):
-    # IF a average of pixel <= args["bw"]: BLACK ELSE: WHITE
+    size = image.size
     new_image = image
     for x in range(size[0]):
         for y in range(size[1]):
-
             pixel = image.getpixel((x,y))
-            
-            if math.floor((pixel[0] + pixel[1] + pixel[2])/3) <= 128:
-                
-                new_image.putpixel((x,y), (255, 255, 255))
-            else:
-                new_image.putpixel((x,y), (0,0,0))
+        
+            new_red = 0
+            new_green = 0
+
+            new_pixel = (new_red, new_green, pixel[2])
+            new_image.putpixel((x,y),new_pixel)
     return new_image
 
-def dither(pixel):
-    # DITHERS, rest of the algo is under if args["filter"]: around lines 350-380
-    dither_change = int(args["dither"])
-    Dither = math.floor(random.randint(0,dither_change) - dither_change/2)
-    R = pixel[0] + Dither
-    if R > 255: R = 255
-    if R < 0: R = 0
-    G = pixel[1] + Dither
-    if G > 255: G = 255
-    if G < 0: G = 0
-    B = pixel[2] + Dither
-    if B > 255: B = 255
-    if B < 0: B = 0
 
-    return (R,G,B)
+
+def dither(image): 
+    size = image.size
+    new_image = image
+    for x in range(size[0]):
+        for y in range(size[1]):
+            pixel = image.getpixel((x,y))
+            
+    # DITHERS, rest of the algo is under if args["filter"]: around lines 350-380
+            dither_change = 128
+            Dither = math.floor(random.randint(0,dither_change) - dither_change/2)
+            R = pixel[0] + Dither
+            if R > 255: R = 255
+            if R < 0: R = 0
+            G = pixel[1] + Dither
+            if G > 255: G = 255
+            if G < 0: G = 0
+            B = pixel[2] + Dither
+            if B > 255: B = 255
+            if B < 0: B = 0
+    
+
+            new_image.putpixel((x,y), pixel)
+    return new_image
     #dither_multiplier = 1
     #dither_change_range = range(-(math.floor(dither_change*dither_multiplier)), (math.floor((dither_change*dither_multiplier)+1)))
 
@@ -222,13 +107,14 @@ def dither(pixel):
 
 
     #print(current_pixel_gray,"     ",new_pixel_gray)
-    return new_pixel_color
+    #return new_pixel_color
 
 def blur(image):
+    size = image.size
     # Blur via increasing kernel size 
     new_image = image
-    size_of_kernel = int(args["blur"])
-    print(image.getpixel((1198,733)))
+    size_of_kernel = 2
+
     for x in range(size[0]):
         for y in range(size[1]):
             current_pixel = image.getpixel((x,y))
@@ -308,111 +194,5 @@ def blur(image):
                         #print(numbers)
             new_image.putpixel((x,y),(current_av[0],current_av[1],current_av[2]))
             #print(count)
-        print(f"Line {x}/{size[0]} completed!",end='\r')
-    print(f"Line {size[0]}/{size[0]} completed!")
     return new_image
 
-def reflect(image):
-    new_image = image
-    if args["reflect"] in ["horizontal", "both"]:
-        for y in range(size[1]):
-            left = 0
-            right = size[0] - 1
-            while (left != right) and (right-left != 1):
-                new_pixel = image.getpixel((left,y))
-                other_new_pixel = image.getpixel((right,y))
-
-                new_image.putpixel((right,y),new_pixel)
-                new_image.putpixel((left,y),other_new_pixel)
-
-                left += 1
-                right -= 1
-            print(f"Column {y} completed!",end='\r')
-    image = new_image
-    if args["reflect"] in ["vertical", "both"]:
-        for x in range(size[0]):
-            left = 0
-            right = size[1] - 1
-            while (left != right) and (right-left != 1):
-                new_pixel = image.getpixel((x,left))
-                other_new_pixel = image.getpixel((x,right))
-
-                new_image.putpixel((x,right),new_pixel)
-                new_image.putpixel((x,left),other_new_pixel)
-
-                left += 1
-                right -= 1
-            print(f"Column {x} completed!",end='\r')
-        
-    return new_image
-if args["reflect"]:
-    image = reflect(image)
-    image.save(output)
-if args["blur"]:
-    image = blur(image)
-    image.save(output)
-if args["dither"]:
-    for x in range(size[0]):
-        for y in range(size[1]):
-            pixel = image.getpixel((x,y))
-            new_pixel = dither(pixel)
-
-
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {x+1}/{size[0]} completed!", end="\r")
-    image.save(output)
-if args["filter"] == "gray":
-    gray_filter(image)
-    image.save(output)
-elif args["filter"] == "sepia":
-    sepia_filter(image)
-    image.save(output)
-elif args["filter"] == "red":
-    red_filter(image)
-    image.save(output)
-elif args["filter"] == "orange":
-    orange_filter(image)
-    image.save(output)    image.open()
-elif args["filter"] == "cyan":
-    cyan_filter(image)
-    image.save(output)
-elif args["filter"] == "blue":
-    blue_filter(image)
-    image.save(output)
-elif args["filter"] == "purple":
-    purple_filter(image)
-    image.save(output)
-elif args["filter"] == "rainbow":
-    rainbow_filter(image)
-    image.save(output)
-if args["bw"]:
-    print("Transferring image to Black/White!")
-    for x in range(size[0]):
-        for y in range(size[1]):
-            pixel = image.getpixel((x,y))
-        
-            new_red = pixel[0]
-            new_green = pixel[1]
-
-            new_pixel = black_white_filter((new_red, new_green, pixel[2]))
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {size[0]}/{size[0]} completed!")
-    image.save(output)
-if args["invert"]:
-    print("Inverting!")
-    for x in range(size[0]):
-        for y in range(size[1]):
-            pixel = image.getpixel((x,y))
-        
-            new_red = pixel[0]
-            new_green = pixel[1]
-
-            new_pixel = invert_filter((new_red, new_green, pixel[2]))
-            image.putpixel((x,y),new_pixel)
-        print(f"Line {x}/{size[0]} completed!", end="\r")
-    print(f"Line {size[0]}/{size[0]} completed!")
-    image.save(output)
-
-image.close()
