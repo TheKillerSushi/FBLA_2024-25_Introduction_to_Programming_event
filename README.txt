@@ -3,6 +3,7 @@ This program has been created for the 2024-25 FBLA Introduction to Programming E
 To use this program, the most recent version of python 3 is required.
 
 Necessary packages: 
+    - math (included in python by default)
     - pillow (PIL):
         The Python Imaging Library (PIL) is
 
