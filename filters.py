@@ -63,7 +63,7 @@ def blue_filter(image):
             new_red = 0
             new_green = 0
 
-            new_pixel = (new_red, new_green, pixel[2])
+            new_pixel = (new_red, new_green, math.floor(pixel[2]*.66))
             new_image.putpixel((x,y),new_pixel)
     return new_image
 
@@ -113,7 +113,7 @@ def blur(image):
     size = image.size
     # Blur via increasing kernel size 
     new_image = image
-    size_of_kernel = 2
+    size_of_kernel = 3
 
     for x in range(size[0]):
         for y in range(size[1]):
@@ -121,7 +121,8 @@ def blur(image):
             current_av = [0,0,0]
             count = 0
             numbers = []
-            # I dont know why this works
+            # Check and average the full kernel
+
             for x1 in range(size_of_kernel):
                 if x - x1 > 0:
                     count += 1

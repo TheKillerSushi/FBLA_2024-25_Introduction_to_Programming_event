@@ -1,145 +1,387 @@
-# Imported Libraries
+import tkinter as tk
+from PIL import Image, ImageTk, ImageEnhance
 import filters
-from PIL import Image
-import math
 
-# Global variables
+# Initalize the screen
+#window.attributes("-fullscreen", True)
+#window = tk.Tk()
+#window.configure(bg="#222831")
 
-
-all_user_choices = {} # This variable stores every user choice (that is significant) so that these choices can be made into a report
-
-# Story procedures functions
-
-def generate_user_choices(all_user_choices, choices_made): # This function generates a report of the users main choices and actions throughout the story
-
-    if choices_made == 0:
-        print("No choices Made!")
-        return 1
-    else:
-        print("REPORT:\n")
-        for choice in all_user_choices:
-            print(f"You decided to {all_user_choices[choice][0]} causing your image to be filtered with the {all_user_choices[choice][1]} filter\n")
-    input("click enter to continue")
-
-def start_story(): # Starts the story and runs the entirety of it
-        
-        # IMAGE to filter
-        image = Image.open("Beach.jpg")
-        size = image.size
+# Screen size for wrapping elements
+#screen_width = window.winfo_screenwidth()
+#screen_height = window.winfo_screenheight()
 
 
-        # Question, [choice1, filter1], [choice2, fitler2]
-        ALL_STORY_BEATS = [
-            ["You are a newly 8 year old boy. It is your birthday, and as a present, you are given a camera by your parents. You are going to the beach to celebrate and you decide to bring the camera into what will become your lifelong passion. These are the some of the most important moments in your life. When you arrive at the beach, you see two areas you could photograph. Which one do you want to take a photo of?", ["Photograph the crystal blue ocean", "NONE"], ["Photograph the beach, the golden sand, pristine and undisturbed","NONE"]],
-            ["After that day at the beach, you began photographing more things, particularly birds. As you grew, you reaelized that you hadn't really taken any photos that represented you. Now at the age of 12, you decided you wanted to start taking pictures that were more personal to you. Now what idea would be more personally significant to you?", ["Photograph your house, a place you can always feel safe, and a place you know you can return to no matter what", "sepia"], ["Photograph your bedroom, your HQ, where you can connect with your freinds from online, and where you can be alone", "gray"]],
-            ["As a 16 year old, you began to branch out and hang out wiht more people, but after a fall you woke up and realized that you couldn't remember what had happened earlier in your life. Now, with your memorys fading forever, you need to choose how you want to remember your life thus far. What will you do?", ["Focus on your past and maybe miss some details", "dither"], ["Let your memory's fade, and keep whatever parts of the memory's you can hold onto", "blur"]]
-        ]
 
-        choices_made = 0
-        for situation in ALL_STORY_BEATS:
-            print("\n",situation[0])
-            # What would user like to do?
-            user_choice = ""
-            while user_choice not in ["1","2","stop"]:
-                user_choice = input(f"1 {situation[1][0]}\n2 {situation[2][0]}\n\n").lower()
+#def exit():
+    #window.destroy()
 
-            # User typed stop and this function returns 3 to mark the programs end. 1 chooses the first option and 2 chooses the second.
-            if user_choice == "stop":
-                return 3
+
+
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()  
+
+        self.filters = {
+            "blue" : filters.blue_filter,
+            "yellow" : filters.yellow_filter,
+            "gray" : filters.gray_filter,
+            "dither" : filters.dither,
+            "blur" : filters.blur,
+            "sepia" : filters.sepia_filter,
+        }
+        self.attributes("-fullscreen", True)
+        self.frame_container = tk.Frame(self)
+        self.frame_container.pack(fill="both", expand=True)
+
+        self.choices = [[None,None],[None,None],[None,None]]
+
+        self.main_image = Image.open("beach.jpg")
+
+        self.frame_container.grid_rowconfigure(0, weight=1)
+        self.frame_container.grid_columnconfigure(0, weight=1)
+
+        self.used_frames = {}
+
+        # Add every frame to the usable frames list and sets them up
+        for FRAME in (main_screen, help_screen, story_screen_1, story_screen_2, story_screen_3, report_screen):
+            frame = FRAME(parent=self.frame_container, controller=self,)
+            self.used_frames[FRAME] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
             
-            # Filtering based on user choice
-            user_choice_int = int(user_choice)
-
-            #if situation[user_choice_int][1] == "blue":
-                #image = filters.blue_filter(image)
-            #elif situation[user_choice_int][1] == "yellow":
-                #image = filters.yellow_filter(image)
-            if situation[user_choice_int][1] == "sepia":
-                image = filters.sepia_filter(image)
-            elif situation[user_choice_int][1] == "gray":
-                image = filters.gray_filter(image)
-            elif situation[user_choice_int][1] == "blur":
-                image = filters.blur(image)
-            elif situation[user_choice_int][1] == "dither":
-                image = filters.dither(image)
+        self.display(main_screen)
     
+    def display(self, FRAME):
 
-            print("You chose to ", situation[user_choice_int][0],"\n")
-            choices_made += 1
-            all_user_choices[choices_made] = situation[user_choice_int]
-        
-            image.save("test.jpg")
-        
-        print("After all you had been through, and with what memory's you retained, you rediscovered your first photo ever and saw it thorugh a new lens. A new filter. How did your experiences shape what you see?")
-        
-        # Show the image to the user and closes it in the actual code
-        image.show()
-        image.close()
-        generate_user_choices(all_user_choices,choices_made)
-        
+        # Raise a frame to be the current one
+        frame = self.used_frames[FRAME]
+        frame.tkraise()
 
-            
-        
+    def remember_choice(self, choice, info=[]):
+        self.choices[choice] = info
 
-            
-def start_help():
+        # Apply the filter to the main image
+        self.main_image = self.filters[info[1]](self.main_image).copy()  # Ensure it's a new copy
 
-    print("Help\n")
+        # Update the next frame’s image before switching
+        for frame in (story_screen_1, story_screen_2, story_screen_3, report_screen):
+            self.used_frames[frame].update_image()
 
-    # What would user like to do?
-    user_choice = ""
-    while user_choice not in ["1","2","stop"]:
-        user_choice = input("What would you like to do?\n1 Return to start screen\n2 View FAQ\n\n").lower()
 
-    # All Frequently asked questions [question, answer format]
-    FAQ = [["How long is this story?", "This story is short and can be completed in a few minutes."],
-           ["Do your choices actually have an impact on the outcome of the story?", "The story mostly surrounds remembering your past with the biases of the future, and the final image is a reflection of that, and thus is the ending of the story in of itself meaning that your choices DO have an imapact on the outcome of the story."],
-           ["Are there branching paths in this game?", "This story does not have branching paths, but it does have many possible combinations of choices you make which can lead to a brand new final image every time."],
-           ["Why does the image get filtered?", "The picture gets filtered as an artistic design choice and to elevate the symbolism and ideas of the story which can make the end of the story more substantial by not outright concluding the story but allowing the user to SEE the outcome of their choices."]]
-    # User typed stop and this function returns 3 to mark that for other functions to use.
-    if user_choice == "stop":
-        return 3
-    elif user_choice == "1":
-        return 0
-    elif user_choice == "2":
-        print("Frequently Asked Questions")
-        for i in FAQ:
-            print("Question: ", i[0], "\nAnswer: ", i[1], "\n\n")
 
-def create_start_state(): # This function prints the start screen of the story and presents the user with options on what they want to do
-    user_choice = ""
-    while user_choice != "stop":
+    # Ends the program when the X is clicked
+
+class main_screen(tk.Frame):
     
-        print("FILTER\n\n")
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
 
-        print('Type the number corresponding to the choice you want to make or type "stop" at anytime to exit the program.\n\n')
+        self.configure(bg="#ECE6E6")
+        self.screen_width = self.winfo_screenwidth()
+        self.screen_height = self.winfo_screenheight()
 
-        # Taking user input to move to another 
+        self.grid_rowconfigure(3, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        label = tk.Label(self, text="Snapshot", font=("Castellar", 40), anchor="center", bg="#ECE6E6")
+        label.grid(row=0, column=0, sticky="n", pady=20)
         
 
-        user_choice = ""
-        while user_choice not in ["1", "2", "stop"]:
+        # Buttons
+        button_width = 7
+        button_height = 1
 
-            # Obtains user input and transfers it to lowercase to account for capitalization cases
-            user_choice = input("Please choose an option:\n1 Start the story\n2 Help\n\n").lower()
+        # Creates a button object to add to the grid
+        story_button = tk.Button(self, text="STORY", font=("Cooper", 43), bg="#EEEEEE", command=self.display_story_1, width=button_width, height=button_height)
+        story_button.grid(row=1, column=0, sticky="n", pady=50)
+        
+        help_button = tk.Button(self, text="HELP", font=("Cooper", 43), bg="#EEEEEE", command=self.display_help, width=button_width, height=button_height)
+        help_button.grid(row=2, column=0, sticky="n", pady=50)
+
+        quit_button = tk.Button(self, text="STOP", font=("Cooper", 43), bg="#EEEEEE", command=self.quit, width=button_width, height=button_height)
+        quit_button.grid(row=3, column=0, sticky="n", pady=50)
+    # Display each specified frame
+    def display_help(self):
+        self.controller.display(help_screen)
+
+    def display_story_1(self):
+        self.controller.display(story_screen_1)
+
+    def display_story_2(self):
+        self.controller.display(story_screen_2)
     
-        if user_choice == "1":
+    def display_story_3(self):
+        self.controller.display(story_screen_3)
+    def quit(self):
+        self.controller.destroy()
+    
+class help_screen(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
 
-            # start the story
-            # if statement is trying to figure out if the user typed stop
-            story_state = start_story()
-            if story_state == 3:
-                return 0
+        self.configure(bg="#ECE6E6")
+        self.screen_width = self.winfo_screenwidth()
+        self.screen_height = self.winfo_screenheight()
+
+        self.grid_rowconfigure(4, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        label = tk.Label(self, text="Help", font=("Castellar", 40), anchor="center", bg="#ECE6E6")
+        label.grid(row=0, column=0, sticky="n", pady=20)
+        
+        # HELP information
+        label_mouse = tk.Label(self, text="Navigate with your mouse and click on buttons to make choices.", font=("Century Gothic", 28), anchor="center", bg="#ECE6E6", wraplength=self.screen_width*0.5)
+        label_mouse.grid(row=1, column=0, stick="n", pady=20)
+
+        label_quit = tk.Label(self, text="Quit using the quit button or the X in the top right of the story. PROGRESS WILL NOT SAVE!", font=("Century Gothic", 28), anchor="center", bg="#ECE6E6", wraplength=self.screen_width*0.5)
+        label_quit.grid(row=2, column=0, stick="n", pady=20)
+
+        label_fun = tk.Label(self, text="Please enjoy the story, your choices have a visible impact :)", font=("Century Gothic", 28), anchor="center", bg="#ECE6E6", wraplength=self.screen_width*0.5)
+        label_fun.grid(row=3, column=0, stick="n", pady=20)        
+        # Button
+        button_width = 7
+        button_height = 1
+
+        quit_button = tk.Button(self, text="Return", font=("Cooper", 43), bg="#EEEEEE", command=self.return_to_main, width=button_width, height=button_height)
+        quit_button.grid(row=4, column=0, sticky="n", pady=50)
+    
+    def return_to_main(self):
+        self.controller.display(main_screen)
+
+class story_screen_1(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+        self.configure(bg="#ECE6E6")
+
+        self.screen_width = self.winfo_screenwidth()
+        self.screen_height = self.winfo_screenheight()
+
+        self.grid_rowconfigure(4, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+
+        # Story title
+        label = tk.Label(self, text="Story", font=("Castellar", 40), bg="#ECE6E6")
+        label.grid(row=0, column=0, columnspan=2, pady=20)
+
+        # Story text
+        label_prompt = tk.Label(self, text="You are a newly 8-year-old boy. As a birthday gift, you were given a camera and went to a beach for the day. You could take a picture of anything, but one thing captures your attention the most. What will you take a picture of?",
+                                font=("Century Gothic", 14), bg="#ECE6E6", wraplength=self.screen_width * 0.5)
+        label_prompt.grid(row=1, column=0, columnspan=2, pady=20)
+
+        # Display Image (Resized)
+        self.main_image = self.update_image()
+
+        # Choice Buttons
+        self.button_answer_1 = tk.Button(self, text="The Ocean", font=("Cooper", 20), command=self.memory_1, bg="#EEEEEE", width=15, height=2)
+        self.button_answer_1.grid(row=3, column=0, padx=20, pady=50, sticky="e")
+
+        self.button_answer_2 = tk.Button(self, text="A Sandcastle", font=("Cooper", 20), command=self.memory_2, bg="#EEEEEE", width=15, height=2)
+        self.button_answer_2.grid(row=3, column=1, padx=20, pady=50, sticky="w")
+
+    def update_image(self):
+        # Resize image while maintaining aspect ratio
+        new_size = (self.screen_width // 4, self.screen_height // 4)
+        resized_image = self.controller.main_image.resize(new_size, Image.Resampling.LANCZOS)
+
+        self.photo = ImageTk.PhotoImage(resized_image)  # Convert to Tkinter format
+        self.image_label = tk.Label(self, image=self.photo, bg="#ECE6E6")
+        self.image_label.grid(row=2, column=0, columnspan=2, pady=20)  # Center the image
+
+        return self.photo
+
+    def memory_1(self):
+        self.controller.remember_choice(0, [self.button_answer_1.cget("text"), "blue"])
+        print(self.controller.choices)
+        self.controller.display(story_screen_2)
+
+    def memory_2(self):
+        self.controller.remember_choice(0, [self.button_answer_2.cget("text"), "yellow"])
+        print(self.controller.choices)
+        self.controller.display(story_screen_2)
+
+class story_screen_2(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+
+        self.configure(bg="#ECE6E6")
+        self.screen_width = self.winfo_screenwidth()
+        self.screen_height = self.winfo_screenheight()
 
 
-        elif user_choice == "2":
+        self.grid_rowconfigure(4, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)  # Configure second column for side-by-side buttons
 
-            # start the help page
-            # if statement is trying to figure out if the user typed stop
-            if start_help() == 3:
-                return 0
+        label = tk.Label(self, text="Story", font=("Castellar", 40), anchor="center", bg="#ECE6E6")
+        label.grid(row=0, column=0, columnspan=2, sticky="n", pady=20)  # Span across both columns
+
+        label_prompt = tk.Label(
+            self, 
+            text="After that day at the beach, you began photographing more things, particularly birds. you even won 3rd place and got a trophy when you entered one of your photos into a competition! Even though you were 12, you knew this was what you wanted to do with your life! Now you just needed to photograph one thing to remember this feeling, what should you take a photo of?", 
+            font=("Century Gothic", 14), 
+            anchor="center", 
+            bg="#ECE6E6", 
+            wraplength=self.screen_width * 0.5
+        )
+        label_prompt.grid(row=1, column=0, columnspan=2, sticky="n", pady=20)  # Span across both columns
+
+        # Display Image (Resized)
+        self.update_image()
+    
+        # Buttons for choices
+        self.button_answer_1 = tk.Button(self, text="Your trophy", font=("Cooper", 20), command=self.memory_1, bg="#EEEEEE", width=15, height=2)
+        self.button_answer_1.grid(row=3, column=0, padx=20, pady=50, sticky="e")
+
+        self.button_answer_2 = tk.Button(self, text="Yourself smiling", font=("Cooper", 20), command=self.memory_2, bg="#EEEEEE", width=15, height=2)
+        self.button_answer_2.grid(row=3, column=1, padx=20, pady=50, sticky="w")
+    def update_image(self):
+        # Resize image while maintaining aspect ratio
+        new_size = (self.screen_width // 4, self.screen_height // 4)
+        resized_image = self.controller.main_image.resize(new_size, Image.Resampling.LANCZOS)
+
+        self.photo = ImageTk.PhotoImage(resized_image)  # Convert to Tkinter format
+        self.image_label = tk.Label(self, image=self.photo, bg="#ECE6E6")
+        self.image_label.grid(row=2, column=0, columnspan=2, pady=20)  # Center the image
+
+    def memory_1(self):
+        self.controller.remember_choice(1, [self.button_answer_1.cget("text"), "sepia"])
+        print(self.controller.choices)
+        print(self.controller.choices)
+        self.controller.display(story_screen_3)
+    def memory_2(self):
+        self.controller.remember_choice(1, [self.button_answer_2.cget("text"), "gray"])
+        print(self.controller.choices)
+        self.controller.display(story_screen_3)
+
+class story_screen_3(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+
+        self.configure(bg="#ECE6E6")
+        self.screen_width = self.winfo_screenwidth()
+        self.screen_height = self.winfo_screenheight()
+
+        self.current_image = self.controller.main_image
+
+        self.grid_rowconfigure(4, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)  # Configure second column for side-by-side buttons
+
+        label = tk.Label(self, text="Story", font=("Castellar", 40), anchor="center", bg="#ECE6E6")
+        label.grid(row=0, column=0, columnspan=2, sticky="n", pady=20)  # Span across both columns
+
+        label_prompt = tk.Label(
+            self, 
+            text="As a 16 year old, you began to branch out and hang out with more people, but after a fall you woke up and realized that you couldn't remember what had happened earlier in your life. Now, with your memorys fading forever, you need to choose how you want to remember your life thus far. What will you do? YOu could lose friends only living in the past, or you you could lose you past all together.", 
+            font=("Century Gothic", 14), 
+            anchor="center", 
+            bg="#ECE6E6", 
+            wraplength=self.screen_width * 0.5
+        )
+        label_prompt.grid(row=1, column=0, columnspan=2, sticky="n", pady=20)  # Span across both columns
+        
+        self.update_image()
+        
+        # Buttons for choices
+        self.button_answer_1 = tk.Button(self, text="Remeber", font=("Cooper", 20),command=self.memory_1, bg="#EEEEEE", width=15, height=2)
+        self.button_answer_1.grid(row=3, column=0, padx=20, pady=50, sticky="e")
+        
+        self.button_answer_2 = tk.Button(self, text="Forget", font=("Cooper", 20),command=self.memory_2, bg="#EEEEEE", width=15, height=2)
+        self.button_answer_2.grid(row=3, column=1, padx=20, pady=50, sticky="w")
+    def update_image(self):
+        # Resize image while maintaining aspect ratio
+        new_size = (self.screen_width // 4, self.screen_height // 4)
+        resized_image = self.controller.main_image.resize(new_size, Image.Resampling.LANCZOS)
+
+        self.photo = ImageTk.PhotoImage(resized_image)  # Convert to Tkinter format
+        self.image_label = tk.Label(self, image=self.photo, bg="#ECE6E6")
+        self.image_label.grid(row=2, column=0, columnspan=2, pady=20)  # Center the image
+    def memory_1(self):
+        self.controller.remember_choice(2, [self.button_answer_1.cget("text"), "dither"])
+        print(self.controller.choices)
+        self.controller.display(report_screen)
+    def memory_2(self):
+        self.controller.remember_choice(2, [self.button_answer_2.cget("text"), "blur"])
+        print(self.controller.choices)
+        self.controller.display(report_screen)
+
+class report_screen(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+        self.configure(bg="#ECE6E6")
+
+        self.screen_width = self.winfo_screenwidth()
+        self.screen_height = self.winfo_screenheight()
+
+        # Title, image, choice_1, choice_2, choice_3, exit button
+        self.grid_rowconfigure(6, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        label = tk.Label(self, text="Story", font=("Castellar", 40), anchor="center", bg="#ECE6E6")
+        label.grid(row=0, column=0, sticky="n", pady=20)
+
+        label_prompt = tk.Label(
+            self, 
+            text="Here is how your choices affected your story.", 
+            font=("Century Gothic", 14), 
+            anchor="center", 
+            bg="#ECE6E6", 
+            wraplength=self.screen_width * 0.5
+        )
+        label_prompt.grid(row=1, column=0, sticky="n", pady=20)
+
+        self.update_image()
+        self.update_choices()
+
+        print(self.controller.choices)
+        self.choice1 = label_prompt = tk.Label(self, text=f"{self.controller.choices[0][0]} Caused the image to be filtered with the {self.controller.choices[0][1]} filter", font=("Century Gothic", 14), anchor="center", bg="#ECE6E6", wraplength=self.screen_width * 0.5)
+        self.choice1.grid(row=3, column=0, sticky="n", pady=20)
+        
+        self.choice2 = label_prompt = tk.Label(self, text=f"{self.controller.choices[1][0]} Caused the image to be filtered with the {self.controller.choices[1][1]} filter", font=("Century Gothic", 14), anchor="center", bg="#ECE6E6", wraplength=self.screen_width * 0.5)
+        self.choice2.grid(row=4, column=0, sticky="n", pady=20)
+        
+        self.choice3 = label_prompt = tk.Label(self, text=f"{self.controller.choices[2][0]} Caused the image to be filtered with the {self.controller.choices[2][1]} filter", font=("Century Gothic", 14), anchor="center", bg="#ECE6E6", wraplength=self.screen_width * 0.5)
+        self.choice3.grid(row=5, column=0, sticky="n", pady=20)
+        
+        self.return_button = tk.Button(self, text="Return", font=("Cooper", 20), command=self.return_main, bg="#EEEEEE", width=15, height=2,anchor="center")
+        self.return_button.grid(row=6, column=0, padx=20, pady=50, sticky="w",)
+        print("i")
+
+    def return_main(self):
+        self.controller.display(main_screen)
+    def update_image(self):
+        # Resize image while maintaining aspect ratio
+        new_size = (self.screen_width // 4, self.screen_height // 4)
+        resized_image = self.controller.main_image.resize(new_size, Image.Resampling.LANCZOS)
+
+        self.photo = ImageTk.PhotoImage(resized_image)  # Convert to Tkinter format
+        self.image_label = tk.Label(self, image=self.photo, bg="#ECE6E6")
+        self.image_label.grid(row=2, column=0, columnspan=2, pady=20)  # Center the image
+
+        self.choices = self.controller.choices
+
+        self.choice1 = label_prompt = tk.Label(self, text=f"Your first choice caused the image to be filtered with the {self.controller.choices[0][1]} filter", font=("Century Gothic", 14), anchor="center", bg="#ECE6E6", wraplength=self.screen_width * 0.5)
+        self.choice1.grid(row=3, column=0, sticky="n", pady=20)
+        
+        self.choice2 = label_prompt = tk.Label(self, text=f"Your second choice caused the image to be filtered with the {self.controller.choices[1][1]} filter", font=("Century Gothic", 14), anchor="center", bg="#ECE6E6", wraplength=self.screen_width * 0.5)
+        self.choice2.grid(row=4, column=0, sticky="n", pady=20)
+        
+        self.choice3 = label_prompt = tk.Label(self, text=f"Your thrid choice caused the image to be filtered with the {self.controller.choices[2][1]} filter", font=("Century Gothic", 14), anchor="center", bg="#ECE6E6", wraplength=self.screen_width * 0.5)
+        self.choice3.grid(row=5, column=0, sticky="n", pady=20)
+    def update_choices(self):
+        self.choices = self.controller.choices
 
 
-    # user has typed stop, end the program.
-    return 0 
-create_start_state()
+
+
+
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()
